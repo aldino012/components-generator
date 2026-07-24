@@ -11,6 +11,7 @@ const CardTemplate = require('./Card');
 const DropdownTemplate = require('./Dropdown');
 const ModalTemplate = require('./Modal');
 const ToastTemplate = require('./Toast');
+const SwitchTemplate = require('./Switch');
 
 // ==========================================
 // 2. Layout Components
@@ -34,6 +35,8 @@ const ImageUploadTemplate = require('./ImageUpload');
 const InputTemplate = require('./Input');
 const SelectTemplate = require('./Select');
 const TextareaTemplate = require('./Textarea');
+const RadioButtonTemplate = require('./Radiobutton');
+const SliderTemplate = require('./Slider');
 
 // ==========================================
 // 5. Data Components
@@ -41,6 +44,7 @@ const TextareaTemplate = require('./Textarea');
 const PaginationTemplate = require('./Pagination');
 const SearchTemplate = require('./Search');
 const TableTemplate = require('./Table');
+const ProgressBarTemplate = require('./ProgressBar');
 // ==========================================
 // Mapping Router
 // ==========================================
@@ -54,6 +58,7 @@ const specificTemplates = {
   Dropdown: DropdownTemplate,
   Modal: ModalTemplate,
   Toast: ToastTemplate,
+  Switch: SwitchTemplate,
 
   // Layout
   Aside: AsideTemplate,
@@ -71,11 +76,15 @@ const specificTemplates = {
   Input: InputTemplate,
   Select: SelectTemplate,
   Textarea: TextareaTemplate,
+  RadioButton: RadioButtonTemplate,
+  Slider: SliderTemplate,
 
   // Data
   Pagination: PaginationTemplate,
   Search: SearchTemplate,
   Table: TableTemplate,
+  ProgressBar: ProgressBarTemplate,
+  
 };
 
 // ==========================================

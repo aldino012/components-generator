@@ -5,7 +5,7 @@ module.exports = (componentName) => {
 
 /**
  * ${componentName} Component
- * Pure Tailwind CSS - Modern form input
+ * Pure Tailwind CSS - Modern form input (supports text, number, color, etc.)
  */
 const ${componentName} = ({
   label,
@@ -37,6 +37,14 @@ const ${componentName} = ({
     ? 'text-red-900 ring-red-300 focus:ring-red-500' 
     : 'text-gray-900 ring-gray-300 focus:ring-indigo-600';
 
+  // Type-specific modifications
+  const typeClasses = {
+    number: \`[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none\`,
+    color: \`h-10 w-20 p-1 cursor-pointer\`, // compact swatch for color
+  };
+
+  const isColor = type === 'color';
+
   return (
     <div className={\`w-full \${className}\`}>
       {label && (
@@ -46,7 +54,8 @@ const ${componentName} = ({
       )}
       
       <div className="relative rounded-md shadow-sm">
-        {icon && iconPosition === 'left' && (
+        {/* Left icon (not applicable for color input) */}
+        {!isColor && icon && iconPosition === 'left' && (
           <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
             {icon}
           </div>
@@ -55,13 +64,18 @@ const ${componentName} = ({
         <input
           id={id}
           type={type}
-          className={\`\${baseClasses} \${stateClasses} \${sizeClasses[size]} \${icon && iconPosition === 'left' ? 'pl-10' : ''} \${icon && iconPosition === 'right' ? 'pr-10' : ''}\`}
+          className={\`\${baseClasses} \${stateClasses} \${sizeClasses[size]} 
+            \${typeClasses[type] || ''} 
+            \${!isColor && icon && iconPosition === 'left' ? 'pl-10' : ''} 
+            \${!isColor && icon && iconPosition === 'right' ? 'pr-10' : ''}
+            \${isColor ? '!w-auto' : ''}\`}
           aria-invalid={error ? 'true' : 'false'}
           aria-describedby={error ? errorId : helperText ? helperId : undefined}
           {...props}
         />
         
-        {icon && iconPosition === 'right' && (
+        {/* Right icon */}
+        {!isColor && icon && iconPosition === 'right' && (
           <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400">
             {icon}
           </div>
