@@ -7,7 +7,8 @@ import React, { useEffect } from 'react';
 
 /**
  * ${componentName} Component
- * Hybrid Style: Tailwind CSS + DaisyUI + Bootstrap concepts
+ * Pure Tailwind CSS
+ * Requirement: Pastikan proyek target sudah menginstall Tailwind CSS.
  */
 const ${componentName} = ({
   isOpen,
@@ -20,7 +21,7 @@ const ${componentName} = ({
   className = '',
   ...props
 }) => {
-  // Lock body scroll when modal is open
+  // Kunci scroll body saat modal terbuka
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -34,6 +35,7 @@ const ${componentName} = ({
 
   if (!isOpen) return null;
 
+  // Ukuran maksimal
   const sizeClasses = {
     sm: 'max-w-sm',
     md: 'max-w-md',
@@ -42,17 +44,18 @@ const ${componentName} = ({
   };
 
   return (
-    <div 
-      className={\`modal modal-open bg-black/50 backdrop-blur-sm transition-opacity \${className}\`}
+    <div
+      className={\`fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity \${className}\`}
       onClick={closeOnBackdrop ? onClose : undefined}
       {...props}
     >
-      <div 
-        className={\`modal-box bg-base-100 relative w-11/12 \${sizeClasses[size]} shadow-2xl\`}
+      <div
+        className={\`relative w-11/12 bg-white rounded-lg shadow-2xl p-6 \${sizeClasses[size] || sizeClasses.md}\`}
         onClick={(e) => e.stopPropagation()}
       >
-        <button 
-          className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+        {/* Tombol close */}
+        <button
+          className="absolute top-3 right-3 inline-flex items-center justify-center w-8 h-8 rounded-full text-gray-500 hover:bg-gray-100 transition-colors"
           onClick={onClose}
           aria-label="Close"
         >
@@ -61,9 +64,18 @@ const ${componentName} = ({
           </svg>
         </button>
 
-        {title && <h3 className="font-bold text-lg pr-8">{title}</h3>}
-        <div className="py-4">{children}</div>
-        {footer && <div className="modal-action">{footer}</div>}
+        {/* Judul */}
+        {title && <h3 className="text-lg font-bold text-gray-900 pr-8">{title}</h3>}
+
+        {/* Konten */}
+        <div className="py-4 text-gray-700">{children}</div>
+
+        {/* Footer (biasanya tombol aksi) */}
+        {footer && (
+          <div className="flex justify-end gap-2 pt-4 border-t border-gray-200">
+            {footer}
+          </div>
+        )}
       </div>
     </div>
   );

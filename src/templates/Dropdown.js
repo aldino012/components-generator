@@ -3,25 +3,26 @@
 module.exports = (componentName) => {
   return `"use client";
 
-   import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 
 /**
  * ${componentName} Component
- * Hybrid Style: Tailwind CSS + DaisyUI + Bootstrap concepts
- * Requirement: Pastikan proyek target sudah menginstall Tailwind CSS dan DaisyUI.
+ * Pure Tailwind CSS
+ * Requirement: Pastikan proyek target sudah menginstall Tailwind CSS.
  */
 const ${componentName} = ({
-  trigger,               // Element yang diklik untuk membuka dropdown (misal: Button)
-  children,              // Isi menu (gunakan <li><a>Item</a></li> ala DaisyUI menu)
+  trigger,               // Elemen pemicu (biasanya button)
+  children,              // Isi menu, dirender di dalam <ul>
   position = 'bottom-start', // bottom-start, bottom-end, top-start, top-end
-  hoverable = false,     // Buka saat di-hover (DaisyUI native concept)
-  className = '',        // Custom class untuk container menu
+  hoverable = false,     // Tampil saat hover
+  className = '',
   ...props
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const timeoutRef = useRef(null);
 
-  // Close when clicking outside (Bootstrap/React standard behavior)
+  // Tutup saat klik di luar
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -32,36 +33,46 @@ const ${componentName} = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Position mapping
-  let positionClasses = 'dropdown-bottom';
-  if (position.includes('end')) positionClasses += ' dropdown-end';
-  if (position.includes('top')) positionClasses = 'dropdown-top' + (position.includes('end') ? ' dropdown-end' : '');
+  // Posisi menu
+  const positionClasses = {
+    'bottom-start': 'top-full left-0 mt-1 origin-top-left',
+    'bottom-end': 'top-full right-0 mt-1 origin-top-right',
+    'top-start': 'bottom-full left-0 mb-1 origin-bottom-left',
+    'top-end': 'bottom-full right-0 mb-1 origin-bottom-right'
+  };
+  const posClass = positionClasses[position] || positionClasses['bottom-start'];
 
-  // Menu visibility & animation classes (Tailwind)
-  const menuVisibility = isOpen || hoverable 
-    ? 'opacity-100 visible scale-100' 
+  // Status buka: berdasarkan hover atau klik
+  const showMenu = hoverable || isOpen;
+  const menuVisibility = showMenu
+    ? 'opacity-100 visible scale-100'
     : 'opacity-0 invisible scale-95';
 
+  // Handler hover dengan delay kecil agar tidak langsung hilang
+  const handleMouseEnter = () => { if (hoverable) { clearTimeout(timeoutRef.current); setIsOpen(true); } };
+  const handleMouseLeave = () => { if (hoverable) timeoutRef.current = setTimeout(() => setIsOpen(false), 100); };
+
   return (
-    <div 
-      className={\`dropdown \${positionClasses} \${hoverable ? 'dropdown-hover' : ''}\`}
+    <div
+      className={\`relative inline-block \${className}\`}
       ref={dropdownRef}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
       {...props}
     >
-      {/* Trigger Element */}
-      <div 
-        tabIndex={0} 
-        role="button" 
-        className="cursor-pointer outline-none"
-        onClick={() => !hoverable && setIsOpen(!isOpen)}
+      {/* Trigger */}
+      <div
+        tabIndex={0}
+        role="button"
+        className="cursor-pointer"
+        onClick={() => { if (!hoverable) setIsOpen(prev => !prev); }}
       >
         {trigger}
       </div>
 
-      {/* Menu Content (DaisyUI menu + Bootstrap dropdown-menu styling) */}
-      <ul 
-        tabIndex={0} 
-        className={\`dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow-lg border border-base-200 transition-all duration-200 origin-top \${menuVisibility} \${className}\`}
+      {/* Menu dropdown */}
+      <ul
+        className={\`absolute \${posClass} z-10 w-52 p-2 bg-white rounded-lg shadow-lg border border-gray-200 transition-all duration-200 \${menuVisibility}\`}
       >
         {children}
       </ul>

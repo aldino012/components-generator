@@ -1,22 +1,21 @@
 // src/templates/Alert.js
 
 module.exports = (componentName) => {
-  // PERHATIKAN: "use client" ada DI DALAM backtick (`), bukan return terpisah
   return `"use client";
 
 import React, { useState } from 'react';
 
 /**
  * ${componentName} Component
- * Hybrid Style: Tailwind CSS + DaisyUI + Bootstrap concepts
- * Requirement: Pastikan proyek target sudah menginstall Tailwind CSS dan DaisyUI.
+ * Pure Tailwind CSS
+ * Requirement: Pastikan proyek target sudah menginstall Tailwind CSS.
  */
 const ${componentName} = ({
   children,
   variant = 'info',       // info, success, warning, error
-  dismissible = false,    // Bootstrap concept: show close button
-  onClose,                // Callback when closed
-  icon = null,            // Custom icon, if null uses default based on variant
+  dismissible = false,
+  onClose,
+  icon = null,
   className = '',
   ...props
 }) => {
@@ -29,10 +28,17 @@ const ${componentName} = ({
     if (onClose) onClose();
   };
 
-  // Base classes: DaisyUI alert + Tailwind layout/shadow/rounded
-  const classes = \`alert flex items-start gap-3 shadow-md rounded-lg alert-\${variant} \${className}\`;
+  // Warna latar, border, dan teks berdasarkan varian
+  const variantClasses = {
+    info: 'bg-blue-50 border border-blue-200 text-blue-800',
+    success: 'bg-green-50 border border-green-200 text-green-800',
+    warning: 'bg-yellow-50 border border-yellow-200 text-yellow-800',
+    error: 'bg-red-50 border border-red-200 text-red-800'
+  };
 
-  // Default SVG Icons based on variant (DaisyUI style)
+  const classes = \`flex items-start gap-3 p-4 shadow-md rounded-lg \${variantClasses[variant] || variantClasses.info} \${className}\`;
+
+  // Ikon default (stroke-current akan mengikuti warna teks)
   const defaultIcons = {
     info: (
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="stroke-current shrink-0 w-6 h-6">
@@ -64,7 +70,7 @@ const ${componentName} = ({
       {dismissible && (
         <button 
           onClick={handleClose} 
-          className="btn btn-sm btn-circle btn-ghost opacity-70 hover:opacity-100 transition-opacity"
+          className="flex-shrink-0 inline-flex items-center justify-center h-6 w-6 rounded-full hover:bg-gray-200 focus:outline-none opacity-70 hover:opacity-100 transition-opacity"
           aria-label="Close"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

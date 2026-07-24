@@ -1,0 +1,29 @@
+component-generator
+├── src
+│   ├── templates
+│   │   ├── Alert.js
+│   │   ├── Aside.js
+│   │   ├── Avatar.js
+│   │   ├── Badge.js
+│   │   ├── Button.js
+│   │   ├── Card.js
+│   │   ├── Checkbox.js
+│   │   ├── Dropdown.js
+│   │   ├── EmptyState.js
+│   │   ├── Footer.js
+│   │   ├── ImageUpload.js
+│   │   ├── index.js
+│   │   ├── Input.js
+│   │   ├── Modal.js
+│   │   ├── Navbar.js
+│   │   ├── Pagination.js
+│   │   ├── Search.js
+│   │   ├── Select.js
+│   │   ├── Skeleton.js
+│   │   ├── Spinner.js
+│   │   ├── Table.js
+│   │   ├── Textarea.js
+│   │   └── Toast.js
+│   ├── config.js
+│   └── generator.js
+└── package.json

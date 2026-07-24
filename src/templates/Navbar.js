@@ -3,11 +3,11 @@
 module.exports = (componentName) => {
   return `"use client";
 
-   import React, { useState } from 'react';
+import React, { useState } from 'react';
 
 /**
  * ${componentName} Component
- * Hybrid Style: Tailwind CSS + DaisyUI + Bootstrap concepts
+ * Pure Tailwind CSS
  */
 const ${componentName} = ({
   logo,                  // Logo element (img or text)
@@ -19,56 +19,67 @@ const ${componentName} = ({
 }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const navClasses = \`navbar bg-base-100 shadow-md \${sticky ? 'sticky top-0 z-50' : ''} \${className}\`;
+  const navClasses = \`bg-white shadow-md flex items-center justify-between p-4 \${sticky ? 'sticky top-0 z-50' : ''} \${className}\`;
 
   return (
     <nav className={navClasses} {...props}>
-      {/* Navbar Start: Mobile Hamburger & Logo */}
-      <div className="navbar-start">
-        <div className="dropdown">
-          <label 
-            tabIndex={0} 
-            className="btn btn-ghost lg:hidden"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h8m-8 6h16" />
-            </svg>
-          </label>
-          
-          {/* Mobile Menu Dropdown */}
-          {isMobileMenuOpen && (
-            <ul tabIndex={0} className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow-lg bg-base-100 rounded-box w-52">
-              {links.map((link, idx) => (
-                <li key={idx}><a href={link.href}>{link.label}</a></li>
-              ))}
-            </ul>
-          )}
-        </div>
-        <a href="/" className="btn btn-ghost text-xl font-bold">
+      {/* Left: Hamburger & Logo */}
+      <div className="flex items-center gap-4">
+        {/* Hamburger - visible only on mobile */}
+        <button
+          className="lg:hidden p-2 rounded-md text-gray-600 hover:bg-gray-100 focus:outline-none"
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          aria-label="Toggle menu"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h8m-8 6h16" />
+          </svg>
+        </button>
+
+        {/* Logo */}
+        <a href="/" className="text-xl font-bold text-gray-800 hover:text-blue-600 transition-colors">
           {logo || 'Brand'}
         </a>
       </div>
 
-      {/* Navbar Center: Desktop Links (Bootstrap hidden-sm concept) */}
-      <div className="navbar-center hidden lg:flex">
-        <ul className="menu menu-horizontal px-1 gap-2">
-          {links.map((link, idx) => (
-            <li key={idx}>
-              <a href={link.href} className="font-medium hover:bg-base-200 transition-colors">
-                {link.label}
-              </a>
-            </li>
-          ))}
-        </ul>
-      </div>
+      {/* Center: Desktop Links - hidden on mobile */}
+      <ul className="hidden lg:flex items-center gap-6 list-none">
+        {links.map((link, idx) => (
+          <li key={idx}>
+            <a href={link.href} className="font-medium text-gray-700 hover:text-blue-600 transition-colors">
+              {link.label}
+            </a>
+          </li>
+        ))}
+      </ul>
 
-      {/* Navbar End: Actions */}
-      <div className="navbar-end">
+      {/* Right: Actions */}
+      <div className="flex items-center gap-3">
         {actions || (
-          <a className="btn btn-primary">Get Started</a>
+          <a href="#" className="inline-flex items-center px-4 py-2 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 transition-colors">
+            Get Started
+          </a>
         )}
       </div>
+
+      {/* Mobile Menu Dropdown */}
+      {isMobileMenuOpen && (
+        <div className="absolute top-full left-0 right-0 bg-white shadow-lg border-t border-gray-200 lg:hidden z-40">
+          <ul className="flex flex-col p-4 gap-2">
+            {links.map((link, idx) => (
+              <li key={idx}>
+                <a
+                  href={link.href}
+                  className="block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100 transition-colors"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  {link.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </nav>
   );
 };

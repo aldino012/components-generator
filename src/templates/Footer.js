@@ -5,7 +5,8 @@ module.exports = (componentName) => {
 
 /**
  * ${componentName} Component
- * Hybrid Style: Tailwind CSS + DaisyUI + Bootstrap concepts
+ * Pure Tailwind CSS
+ * Requirement: Pastikan proyek target sudah menginstall Tailwind CSS.
  */
 const ${componentName} = ({
   brand,                 // Brand name or logo element
@@ -19,39 +20,44 @@ const ${componentName} = ({
   return (
     <>
       {/* Main Footer Content */}
-      <footer className={\`footer p-10 bg-base-200 text-base-content \${className}\`} {...props}>
-        {/* Brand & Description (Bootstrap aside concept) */}
-        <aside>
-          <h2 className="text-2xl font-bold mb-2">{brand || 'Brand'}</h2>
-          <p className="max-w-xs">{description || 'Providing awesome services since 2024.'}</p>
-          {socials && <div className="mt-4 flex gap-4">{socials}</div>}
-        </aside>
+      <footer className={\`bg-gray-100 text-gray-700 p-10 \${className}\`} {...props}>
+        <div className="max-w-7xl mx-auto flex flex-wrap gap-10 justify-between">
+          {/* Brand & Description */}
+          <aside className="flex-shrink-0 max-w-xs">
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">{brand || 'Brand'}</h2>
+            <p className="text-sm text-gray-600">{description || 'Providing awesome services since 2024.'}</p>
+            {socials && <div className="mt-4 flex gap-4">{socials}</div>}
+          </aside>
 
-        {/* Link Columns (Bootstrap grid columns concept) */}
-        {columns.map((col, idx) => (
-          <nav key={idx}>
-            <h6 className="footer-title">{col.title}</h6>
-            {col.links.map((link, linkIdx) => (
-              <a key={linkIdx} href={link.href} className="link link-hover">
-                {link.label}
-              </a>
-            ))}
-          </nav>
-        ))}
+          {/* Link Columns */}
+          {columns.map((col, idx) => (
+            <nav key={idx} className="flex flex-col gap-2">
+              <h6 className="font-semibold text-gray-800 uppercase tracking-wider text-sm mb-1">{col.title}</h6>
+              {col.links.map((link, linkIdx) => (
+                <a
+                  key={linkIdx}
+                  href={link.href}
+                  className="text-sm text-gray-600 hover:text-blue-600 hover:underline transition-colors"
+                >
+                  {link.label}
+                </a>
+              ))}
+            </nav>
+          ))}
+        </div>
       </footer>
 
       {/* Bottom Bar / Copyright */}
-      <footer className="footer px-10 py-4 border-t bg-base-200 text-base-content border-base-300">
-        <aside className="items-center grid-flow-col">
-          <p>{copyright || \`© \${new Date().getFullYear()} - All right reserved\`}</p>
-        </aside>
-        <nav className="md:place-self-center md:justify-self-end">
-          <div className="grid grid-flow-col gap-4">
-            {/* Optional bottom links */}
-            <a href="/privacy" className="link link-hover text-sm">Privacy Policy</a>
-            <a href="/terms" className="link link-hover text-sm">Terms of Service</a>
-          </div>
-        </nav>
+      <footer className="bg-gray-100 text-gray-600 border-t border-gray-300 px-10 py-4">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
+          <aside>
+            <p className="text-sm">{copyright || \`© \${new Date().getFullYear()} - All right reserved\`}</p>
+          </aside>
+          <nav className="flex gap-4">
+            <a href="/privacy" className="text-sm hover:text-blue-600 hover:underline transition-colors">Privacy Policy</a>
+            <a href="/terms" className="text-sm hover:text-blue-600 hover:underline transition-colors">Terms of Service</a>
+          </nav>
+        </div>
       </footer>
     </>
   );
