@@ -7,22 +7,36 @@ import React, { useState, useRef, useEffect } from 'react';
 
 /**
  * ${componentName} Component
- * Pure Tailwind CSS
- * Requirement: Pastikan proyek target sudah menginstall Tailwind CSS.
+ * Standar Industri: Aksesibilitas (ARIA), Animasi Halus, Dark Mode, dan Outside Click Handler.
  */
 const ${componentName} = ({
-  trigger,               // Elemen pemicu (biasanya button)
-  children,              // Isi menu, dirender di dalam <ul>
-  position = 'bottom-start', // bottom-start, bottom-end, top-start, top-end
-  hoverable = false,     // Tampil saat hover
+  trigger,               // React Node: Elemen pemicu (biasanya <Button>)
+  children,              // React Node: Isi menu (biasanya kumpulan <button> atau <a>)
+  position = 'bottom-end', // POSISI: 'bottom-start', 'bottom-end', 'top-start', 'top-end'
+  hoverable = false,     // Boolean: Buka menu saat hover (default: klik)
+  isOpen: controlledIsOpen, // Boolean (Opsional): Untuk state terkontrol dari luar
+  onOpenChange,          // Function (Opsional): Callback saat status buka/tutup berubah
   className = '',
   ...props
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
+  // Gunakan state internal jika tidak dikontrol dari luar
+  const [internalIsOpen, setInternalIsOpen] = useState(false);
+  const isOpen = controlledIsOpen !== undefined ? controlledIsOpen : internalIsOpen;
+  
   const dropdownRef = useRef(null);
   const timeoutRef = useRef(null);
 
-  // Tutup saat klik di luar
+  // 1. Handler untuk mengubah state (mendukung controlled & uncontrolled)
+  const setIsOpen = (value) => {
+    if (controlledIsOpen === undefined) {
+      setInternalIsOpen(value);
+    }
+    if (onOpenChange) {
+      onOpenChange(value);
+    }
+  };
+
+  // 2. Tutup saat klik di luar komponen
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -31,51 +45,84 @@ const ${componentName} = ({
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  }, [controlledIsOpen, onOpenChange]);
 
-  // Posisi menu
+  // 3. Tutup saat tombol 'Escape' ditekan (Aksesibilitas)
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape' && isOpen) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen]);
+
+  // 4. Posisi & Animasi Origin
   const positionClasses = {
-    'bottom-start': 'top-full left-0 mt-1 origin-top-left',
-    'bottom-end': 'top-full right-0 mt-1 origin-top-right',
-    'top-start': 'bottom-full left-0 mb-1 origin-bottom-left',
-    'top-end': 'bottom-full right-0 mb-1 origin-bottom-right'
+    'bottom-start': 'top-full left-0 mt-2 origin-top-left',
+    'bottom-end': 'top-full right-0 mt-2 origin-top-right',
+    'top-start': 'bottom-full left-0 mb-2 origin-bottom-left',
+    'top-end': 'bottom-full right-0 mb-2 origin-bottom-right'
   };
-  const posClass = positionClasses[position] || positionClasses['bottom-start'];
+  const posClass = positionClasses[position] || positionClasses['bottom-end'];
 
-  // Status buka: berdasarkan hover atau klik
-  const showMenu = hoverable || isOpen;
-  const menuVisibility = showMenu
-    ? 'opacity-100 visible scale-100'
-    : 'opacity-0 invisible scale-95';
+  // 5. Logika Hover dengan Delay (Mencegah flicker)
+  const handleMouseEnter = () => {
+    if (hoverable) {
+      clearTimeout(timeoutRef.current);
+      setIsOpen(true);
+    }
+  };
+  const handleMouseLeave = () => {
+    if (hoverable) {
+      timeoutRef.current = setTimeout(() => setIsOpen(false), 150);
+    }
+  };
 
-  // Handler hover dengan delay kecil agar tidak langsung hilang
-  const handleMouseEnter = () => { if (hoverable) { clearTimeout(timeoutRef.current); setIsOpen(true); } };
-  const handleMouseLeave = () => { if (hoverable) timeoutRef.current = setTimeout(() => setIsOpen(false), 100); };
+  // 6. Logika Penggabungan Class
+  const baseWrapperClasses = 'relative inline-block text-left';
+  
+  const menuClasses = \`absolute z-50 w-56 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-xl transition-all duration-200 ease-out \${posClass} \${
+    isOpen ? 'opacity-100 visible scale-100 translate-y-0' : 'opacity-0 invisible scale-95 translate-y-1'
+  }\`;
 
   return (
     <div
-      className={\`relative inline-block \${className}\`}
+      className={\`\${baseWrapperClasses} \${className}\`}
       ref={dropdownRef}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       {...props}
     >
-      {/* Trigger */}
+      {/* Trigger Wrapper */}
       <div
         tabIndex={0}
         role="button"
-        className="cursor-pointer"
-        onClick={() => { if (!hoverable) setIsOpen(prev => !prev); }}
+        aria-haspopup="true"
+        aria-expanded={isOpen}
+        className="cursor-pointer focus:outline-none"
+        onClick={() => {
+          if (!hoverable) setIsOpen(!isOpen);
+        }}
+        onKeyDown={(e) => {
+          if (!hoverable && (e.key === 'Enter' || e.key === ' ')) {
+            e.preventDefault();
+            setIsOpen(!isOpen);
+          }
+        }}
       >
         {trigger}
       </div>
 
-      {/* Menu dropdown */}
-      <ul
-        className={\`absolute \${posClass} z-10 w-52 p-2 bg-white rounded-lg shadow-lg border border-gray-200 transition-all duration-200 \${menuVisibility}\`}
-      >
-        {children}
-      </ul>
+      {/* Dropdown Menu */}
+      {isOpen && (
+        <div className={menuClasses} role="menu" aria-orientation="vertical">
+          <div className="py-1">
+            {children}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

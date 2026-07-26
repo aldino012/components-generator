@@ -5,70 +5,93 @@ module.exports = (componentName) => {
 
 /**
  * ${componentName} Component
- * Pure Tailwind CSS
- * Requirement: Pastikan proyek target sudah menginstall Tailwind CSS.
+ * Standar Industri: Fleksibel, mendukung Dark Mode, dan tipografi yang nyaman di mata.
  */
 const ${componentName} = ({
   children,
   title,
   subtitle,
   image,
-  imagePosition = 'top',   // 'top' atau 'background'
-  actions,                 // Elemen di pojok kanan atas
-  footer,                  // Elemen di bagian bawah card
-  hoverable = false,       // Efek shadow saat di-hover
+  imagePosition = 'top',      // 'top' | 'background'
+  variant = 'default',        // 'default' | 'elevated' | 'ghost'
+  headerActions,              // React Node: Tombol/menu di pojok kanan atas (opsional)
+  footer,                     // React Node: Konten di bagian bawah card (opsional)
   className = '',
   ...props
 }) => {
-  // Base card classes
-  let cardClasses = 'bg-white rounded-lg shadow-md transition-all duration-300';
-  
-  if (hoverable) cardClasses += ' hover:shadow-2xl hover:-translate-y-1 cursor-pointer';
-  if (imagePosition === 'background') cardClasses += ' relative overflow-hidden';
-  if (className) cardClasses += \` \${className}\`;
 
-  // Body classes – jika background image, tambahkan relative z-10 dan teks putih
-  const bodyClasses = \`p-6 flex-1\${imagePosition === 'background' ? ' relative z-10 text-white' : ''}\`;
+  // =========================================================================
+  // 1. PUSAT KONTROL VARIANT (Tampilan Dasar Card)
+  // =========================================================================
+  const variants = {
+    // Standar: Border halus, cocok untuk daftar item atau form
+    default: 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700',
+    // Mengambang: Ada shadow, naik sedikit saat di-hover. Cocok untuk kartu produk/artikel
+    elevated: 'bg-white dark:bg-slate-800 shadow-sm hover:shadow-xl hover:-translate-y-1 border border-slate-100 dark:border-slate-700',
+    // Hantu: Background transparan dengan border putus-putus. Cocok untuk "Tambah Item Baru"
+    ghost: 'bg-slate-50 dark:bg-slate-800/50 border-2 border-dashed border-slate-300 dark:border-slate-600 hover:border-indigo-400 dark:hover:border-indigo-500 hover:bg-slate-100 dark:hover:bg-slate-800'
+  };
+
+  // =========================================================================
+  // 2. LOGIKA PENGGABUNGAN CLASS
+  // =========================================================================
+  const baseClasses = 'rounded-xl overflow-hidden transition-all duration-300 flex flex-col';
+  const variantClass = variants[variant] || variants.default;
+  const finalClassName = [baseClasses, variantClass, className].filter(Boolean).join(' ');
+
+  // Helper untuk menyesuaikan warna teks berdasarkan posisi gambar
+  const isBgImage = imagePosition === 'background';
+  const titleColor = isBgImage ? 'text-white' : 'text-slate-900 dark:text-white';
+  const subColor = isBgImage ? 'text-slate-200' : 'text-slate-500 dark:text-slate-400';
+  const borderColor = isBgImage ? 'border-white/20' : 'border-slate-100 dark:border-slate-700';
 
   return (
-    <div className={cardClasses} {...props}>
-      {/* Gambar di atas (top) */}
+    <div className={finalClassName} {...props}>
+      
+      {/* A. GAMBAR DI ATAS (TOP) */}
       {image && imagePosition === 'top' && (
-        <figure className="px-4 pt-4">
-          <img src={image} alt={title || 'Card image'} className="rounded-xl w-full object-cover h-48" />
-        </figure>
+        <div className="w-full h-48 overflow-hidden">
+          <img src={image} alt={title || 'Card image'} className="w-full h-full object-cover transition-transform duration-500 hover:scale-105" />
+        </div>
       )}
 
-      {/* Gambar sebagai background (image-full) */}
+      {/* B. GAMBAR SEBAGAI BACKGROUND */}
       {image && imagePosition === 'background' && (
-        <>
-          <figure className="absolute inset-0">
-            <img src={image} alt={title || 'Card image'} className="w-full h-full object-cover" />
-          </figure>
-          {/* Overlay semi-transparan agar teks terbaca */}
-          <div className="absolute inset-0 bg-black/40"></div>
-        </>
+        <div className="absolute inset-0 z-0">
+          <img src={image} alt={title || 'Card background'} className="w-full h-full object-cover" />
+          {/* Gradient Overlay Profesional: Agar teks di atas gambar selalu terbaca dengan jelas */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+        </div>
       )}
 
-      {/* Card Body */}
-      <div className={bodyClasses}>
-        {/* Actions di pojok kanan atas */}
-        {actions && (
-          <div className="flex justify-end">
-            {actions}
+      {/* C. KONTEN UTAMA (BODY) */}
+      <div className={\`p-6 flex flex-col flex-1 relative z-10 \${isBgImage ? 'pt-4' : ''}\`}>
+        
+        {/* Header: Judul, Subjudul, dan Actions */}
+        {(title || subtitle || headerActions) && (
+          <div className="flex justify-between items-start gap-4 mb-4">
+            <div className="flex-1 min-w-0">
+              {title && <h3 className={\`text-lg font-semibold leading-tight \${titleColor}\`}>{title}</h3>}
+              {subtitle && <p className={\`text-sm mt-1 \${subColor}\`}>{subtitle}</p>}
+            </div>
+            {headerActions && (
+              <div className="flex-shrink-0">
+                {headerActions}
+              </div>
+            )}
           </div>
         )}
 
-        {/* Judul & Subjudul */}
-        {title && <h2 className="font-bold text-lg">{title}</h2>}
-        {subtitle && <p className="text-sm opacity-70 mt-0">{subtitle}</p>}
+        {/* Isi Card (Children) */}
+        {children && (
+          <div className={\`flex-1 \${subColor}\`}>
+            {children}
+          </div>
+        )}
 
-        {/* Konten utama */}
-        <div className="flex-1">{children}</div>
-
-        {/* Footer (seperti card-footer Bootstrap) */}
+        {/* Footer: Biasanya untuk tombol aksi atau metadata */}
         {footer && (
-          <div className="flex justify-end mt-4 pt-4 border-t border-gray-200">
+          <div className={\`mt-6 pt-4 border-t \${borderColor} flex justify-end gap-2\`}>
             {footer}
           </div>
         )}

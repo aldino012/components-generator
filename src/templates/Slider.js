@@ -1,13 +1,13 @@
 // src/templates/Slider.js
+
 module.exports = (componentName) => {
   return `"use client";
 
-import React, { useState } from 'react';
+import React, { useState, useId } from 'react';
 
 /**
  * ${componentName} Component
- * Pure Tailwind CSS
- * Input range / slider dengan styling custom.
+ * Standar Industri: Custom thumb, Dark Mode ready, dan Aksesibilitas Keyboard penuh.
  */
 const ${componentName} = ({
   value: controlledValue,
@@ -19,57 +19,102 @@ const ${componentName} = ({
   disabled = false,
   showValue = true,
   label,
-  helperText,          // ✅ Destructure agar tidak masuk ke ...props
+  error,
+  helperText,
   className = '',
-  ...props             // ✅ Sisa props yang valid untuk div wrapper
+  ...props
 }) => {
+  const id = useId();
   const [internalValue, setInternalValue] = useState(defaultValue);
+  
   const isControlled = controlledValue !== undefined;
-  const value = isControlled ? controlledValue : internalValue;
+  const currentValue = isControlled ? controlledValue : internalValue;
+  
+  // Hitung persentase untuk posisi thumb dan lebar fill
+  const percentage = ((currentValue - min) / (max - min)) * 100;
 
   const handleChange = (e) => {
     const newValue = Number(e.target.value);
     if (!isControlled) setInternalValue(newValue);
-    if (onChange) onChange(e); // ✅ Kembalikan event object agar kompatibel dengan page.js
+    if (onChange) onChange(e);
   };
 
-  const percentage = ((value - min) / (max - min)) * 100;
+  // =========================================================================
+  // 2. LOGIKA PENGGABUNGAN CLASS
+  // =========================================================================
+  const wrapperClasses = \`flex flex-col space-y-2 \${className} \${disabled ? 'opacity-50 cursor-not-allowed' : ''}\`;
+  
+  const labelClasses = \`text-sm font-medium \${error ? 'text-rose-600 dark:text-rose-400' : 'text-slate-700 dark:text-slate-300'}\`;
+  const valueClasses = \`text-sm font-medium \${error ? 'text-rose-600 dark:text-rose-400' : 'text-slate-900 dark:text-white'}\`;
 
-  const rangeClasses = \`w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer \${disabled ? 'opacity-50 cursor-not-allowed' : ''} 
-    [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-blue-600 [&::-webkit-slider-thumb]:shadow [&::-webkit-slider-thumb]:border-0
-    [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-blue-600 [&::-moz-range-thumb]:border-0\`;
+  // Track & Thumb Styling (Pendekatan Modern: Track terpisah dari Input)
+  const trackBg = 'absolute w-full h-2 rounded-full bg-slate-200 dark:bg-slate-700';
+  const trackFill = \`absolute h-2 rounded-full transition-all duration-75 \${error ? 'bg-rose-600 dark:bg-rose-500' : 'bg-indigo-600 dark:bg-indigo-500'}\`;
+  
+  // Thumb: w-5 = 20px, jadi offset tengah adalah 10px
+  const thumbClasses = \`absolute top-1/2 -translate-y-1/2 h-5 w-5 rounded-full bg-white dark:bg-slate-200 border-2 shadow-sm transition-all duration-75 pointer-events-none \${error ? 'border-rose-600 dark:border-rose-500' : 'border-indigo-600 dark:border-indigo-500'}\`;
+  
+  // Input asli dibuat transparan (opacity-0) tapi tetap di atas (z-20) agar bisa diklik/di-drag dan diakses keyboard
+  const inputClasses = 'absolute w-full h-2 opacity-0 cursor-pointer z-20 disabled:cursor-not-allowed';
+
+  const ariaDescribedBy = [error ? \`\${id}-error\` : null, helperText ? \`\${id}-helper\` : null].filter(Boolean).join(' ') || undefined;
 
   return (
-    <div className={\`flex flex-col space-y-1 \${className}\`} {...props}>
-      {label && (
+    <div className={wrapperClasses} {...props}>
+      {/* Header: Label & Value */}
+      {(label || showValue) && (
         <div className="flex justify-between items-center">
-          <span className="text-sm font-medium text-gray-700">{label}</span>
-          {showValue && (
-            <span className="text-sm font-medium text-gray-900">{value}</span>
-          )}
+          {label && <label htmlFor={id} className={labelClasses}>{label}</label>}
+          {showValue && <span className={valueClasses}>{currentValue}</span>}
         </div>
       )}
-      <div className="relative pt-1">
+
+      {/* Slider Container */}
+      <div className="relative h-5 flex items-center">
+        {/* 1. Background Track */}
+        <div className={trackBg}></div>
+        
+        {/* 2. Filled Track (Lebar dinamis berdasarkan persentase) */}
+        <div className={trackFill} style={{ width: \`\${percentage}%\` }}></div>
+        
+        {/* 3. Visual Thumb (Posisi dinamis, dikurangi 10px agar tepat di tengah) */}
+        <div className={thumbClasses} style={{ left: \`calc(\${percentage}% - 10px)\` }}></div>
+        
+        {/* 4. Actual Input (Transparan, menangkap interaksi & keyboard) */}
         <input
+          id={id}
           type="range"
           min={min}
           max={max}
           step={step}
-          value={value}
+          value={currentValue}
           onChange={handleChange}
           disabled={disabled}
-          className={rangeClasses}
-          style={{
-            background: \`linear-gradient(to right, #2563eb 0%, #2563eb \${percentage}%, #e5e7eb \${percentage}%, #e5e7eb 100%)\`,
-          }}
+          className={inputClasses}
+          aria-labelledby={label ? id : undefined}
+          aria-valuenow={currentValue}
+          aria-valuemin={min}
+          aria-valuemax={max}
+          aria-invalid={error ? 'true' : 'false'}
+          aria-describedby={ariaDescribedBy}
         />
       </div>
-      {!label && showValue && (
-        <div className="text-right text-sm font-medium text-gray-900">{value}</div>
+
+      {/* Error Message */}
+      {error && (
+        <p id={\`\${id}-error\`} className="flex items-center gap-1.5 text-xs text-rose-600 dark:text-rose-400">
+          <svg className="h-3.5 w-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          {error}
+        </p>
       )}
-      {/* ✅ Render helperText secara eksplisit */}
-      {helperText && (
-        <p className="text-xs text-gray-500 mt-1">{helperText}</p>
+      
+      {/* Helper Text */}
+      {!error && helperText && (
+        <p id={\`\${id}-helper\`} className="text-xs text-slate-500 dark:text-slate-400">
+          {helperText}
+        </p>
       )}
     </div>
   );

@@ -3,7 +3,6 @@
 const fs = require('fs');
 const path = require('path');
 const config = require('./config');
-// UBAH DI SINI: Import dari folder templates/index.js
 const { getTemplate } = require('./templates'); 
 
 function generateComponents(targetDir) {
@@ -21,19 +20,20 @@ function generateComponents(targetDir) {
     }
 
     components.forEach(componentName => {
-      // UBAH DI SINI: Gunakan getTemplate dari index.js
       const content = getTemplate(componentName); 
       
-      // Catatan: Jika proyek Anda menggunakan .jsx, ubah .js menjadi .jsx di baris bawah ini
-      const filePath = path.join(folderPath, `${componentName}.js`); 
+      // PERBAIKAN: Ubah ekstensi menjadi .jsx agar kompatibel dengan Vite, Next.js, dan framework modern lainnya
+      const filePath = path.join(folderPath, `${componentName}.jsx`); 
 
       fs.writeFileSync(filePath, content, 'utf8');
       totalFiles++;
-      console.log(`✅ Created: ${folderName}/${componentName}.js`);
+      
+      // PERBAIKAN: Update log console agar sesuai dengan ekstensi baru
+      console.log(`✅ Created: ${folderName}/${componentName}.jsx`);
     });
   }
 
-  console.log(`\n🎉 Selesai! ${totalFiles} component berhasil di-generate.`);
+  console.log(`\n🎉 Selesai! ${totalFiles} component berhasil di-generate dengan ekstensi .jsx`);
 }
 
 module.exports = {

@@ -3,58 +3,94 @@
 module.exports = (componentName) => {
   return `import React from 'react';
 
-/**
- * ${componentName} Component
- * Pure Tailwind CSS - Responsive data table
- */
 const ${componentName} = ({
-  columns = [],          // Array of { key: 'name', label: 'Name', render?: (value, row) => JSX }
-  data = [],             // Array of data objects
-  onRowClick,            // Optional callback when row is clicked
-  emptyMessage = 'No data available',
+  columns = [],
+  data = [],
+  onRowClick,
+  emptyMessage = 'Tidak ada data untuk ditampilkan.',
+  striped = false,
+  stickyHeader = false,
   className = '',
   ...props
 }) => {
-  if (data.length === 0) {
+  const containerClass = \`overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800 \${className}\`;
+
+  if (!data.length) {
     return (
-      <div className={\`text-center py-8 text-gray-500 \${className}\`} {...props}>
-        {emptyMessage}
+      <div
+        className={\`rounded-xl border border-dashed border-slate-300 bg-slate-50 py-12 text-center dark:border-slate-700 dark:bg-slate-900/50 \${className}\`}
+        {...props}
+      >
+        <p className="text-sm font-medium text-slate-900 dark:text-white">
+          {emptyMessage}
+        </p>
       </div>
     );
   }
 
+  const getAlign = (align) =>
+    align === 'center'
+      ? 'text-center'
+      : align === 'right'
+        ? 'text-right'
+        : 'text-left';
+
   return (
-    <div className={\`overflow-x-auto rounded-lg border border-gray-200 \${className}\`} {...props}>
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
+    <div className={containerClass} {...props}>
+      <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-800">
+        <thead
+          className={\`bg-slate-50 dark:bg-slate-800/50 \${
+            stickyHeader ? 'sticky top-0 z-10 shadow-sm' : ''
+          }\`}
+        >
           <tr>
-            {columns.map((col, index) => (
+            {columns.map((col, colIndex) => (
               <th
-                key={index}
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                key={\`\${String(col.key ?? 'column')}-\${colIndex}\`}
+                scope="col"
+                className={\`px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 \${getAlign(col.align)} \${col.className || ''}\`}
               >
                 {col.label}
               </th>
             ))}
           </tr>
         </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
-          {data.map((row, rowIndex) => (
-            <tr
-              key={rowIndex}
-              onClick={() => onRowClick && onRowClick(row)}
-              className={\`transition-colors duration-150 \${onRowClick ? 'cursor-pointer hover:bg-gray-50' : ''}\`}
-            >
-              {columns.map((col, colIndex) => (
-                <td key={colIndex} className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {col.render 
-                    ? col.render(row[col.key], row)
-                    : row[col.key]
-                  }
-                </td>
-              ))}
-            </tr>
-          ))}
+
+        <tbody className="divide-y divide-slate-200 bg-white dark:divide-slate-800 dark:bg-slate-900">
+          {data.map((row, rowIndex) => {
+            const rowKey = \`\${String(row.id ?? 'row')}-\${rowIndex}\`;
+            const rowColor =
+              striped && rowIndex % 2
+                ? 'bg-slate-50/50 dark:bg-slate-800/30'
+                : 'bg-white dark:bg-slate-900';
+
+            return (
+              <tr
+                key={rowKey}
+                onClick={() => onRowClick?.(row, rowIndex)}
+                className={\`transition-colors \${rowColor} \${
+                  onRowClick
+                    ? 'cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800'
+                    : ''
+                }\`}
+              >
+                {columns.map((col, colIndex) => {
+                  const value = row[col.key];
+
+                  return (
+                    <td
+                      key={\`\${rowKey}-\${String(col.key ?? 'cell')}-\${colIndex}\`}
+                      className={\`whitespace-nowrap px-6 py-4 text-sm text-slate-700 dark:text-slate-300 \${getAlign(col.align)} \${col.className || ''}\`}
+                    >
+                      {col.render
+                        ? col.render(value, row, rowIndex)
+                        : value ?? '-'}
+                    </td>
+                  );
+                })}
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>

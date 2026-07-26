@@ -5,79 +5,79 @@ module.exports = (componentName) => {
 
 /**
  * ${componentName} Component
- * Pure Tailwind CSS
- * Requirement: Pastikan proyek target sudah menginstall Tailwind CSS.
+ * Standar Industri: Full Props Control + Premium Click Feedback.
  */
 const ${componentName} = ({
   children,
-  variant = 'primary',   // primary, secondary, accent, ghost, link, error, success, warning, info
-  size = 'md',           // xs, sm, md, lg
-  outline = false,
-  block = false,
-  loading = false,
-  disabled = false,
-  type = 'button',
-  className = '',
+  variant = 'primary',   // WARNA: primary, secondary, info, success, warning, error, ghost, link
+  size = 'md',           // UKURAN: xs, sm, md, lg, xl
+  align = 'center',      // POSISI INTERNAL: start, center, end, between
+  outline = false,       // STYLE: true (garis tepi), false (solid)
+  block = false,         // POSISI EKSTERNAL: true (lebar penuh/w-full), false (sesuai konten)
+  loading = false,       // STATE: true (menampilkan spinner & disable)
+  disabled = false,      // STATE: true (tidak bisa diklik)
+  type = 'button',       // HTML: 'button', 'submit', 'reset'
+  className = '',        // OVERRIDE: Hanya untuk kebutuhan sangat spesifik di luar props di atas
   ...props
 }) => {
-  // Solid variant colors
-  const solidColors = {
-    primary:   'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500',
-    secondary: 'bg-gray-600 text-white hover:bg-gray-700 focus:ring-gray-500',
-    accent:    'bg-purple-600 text-white hover:bg-purple-700 focus:ring-purple-500',
-    info:      'bg-blue-400 text-white hover:bg-blue-500 focus:ring-blue-400',
-    success:   'bg-green-600 text-white hover:bg-green-700 focus:ring-green-500',
-    warning:   'bg-yellow-500 text-black hover:bg-yellow-600 focus:ring-yellow-400',
-    error:     'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500',
-    ghost:     'bg-transparent text-gray-700 hover:bg-gray-100 focus:ring-gray-300',
-    link:      'bg-transparent text-blue-600 hover:underline focus:ring-blue-300'
+
+  // =========================================================================
+  // 1. PUSAT KONTROL WARNA
+  // =========================================================================
+  const colors = {
+    primary:   { solid: 'bg-indigo-600 text-white hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 focus:ring-indigo-500', outline: 'border border-indigo-600 text-indigo-600 hover:bg-indigo-50 dark:border-indigo-400 dark:text-indigo-400 dark:hover:bg-indigo-900/30 focus:ring-indigo-500' },
+    secondary: { solid: 'bg-slate-600 text-white hover:bg-slate-700 dark:bg-slate-500 dark:hover:bg-slate-600 focus:ring-slate-500', outline: 'border border-slate-600 text-slate-600 hover:bg-slate-50 dark:border-slate-400 dark:text-slate-400 dark:hover:bg-slate-800 focus:ring-slate-500' },
+    info:      { solid: 'bg-sky-600 text-white hover:bg-sky-700 dark:bg-sky-500 dark:hover:bg-sky-600 focus:ring-sky-500', outline: 'border border-sky-600 text-sky-600 hover:bg-sky-50 dark:border-sky-400 dark:text-sky-400 dark:hover:bg-sky-900/30 focus:ring-sky-500' },
+    success:   { solid: 'bg-emerald-600 text-white hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 focus:ring-emerald-500', outline: 'border border-emerald-600 text-emerald-600 hover:bg-emerald-50 dark:border-emerald-400 dark:text-emerald-400 dark:hover:bg-emerald-900/30 focus:ring-emerald-500' },
+    warning:   { solid: 'bg-amber-500 text-white hover:bg-amber-600 dark:bg-amber-500 dark:hover:bg-amber-600 focus:ring-amber-500', outline: 'border border-amber-500 text-amber-600 hover:bg-amber-50 dark:border-amber-400 dark:text-amber-400 dark:hover:bg-amber-900/30 focus:ring-amber-500' },
+    error:     { solid: 'bg-rose-600 text-white hover:bg-rose-700 dark:bg-rose-500 dark:hover:bg-rose-600 focus:ring-rose-500', outline: 'border border-rose-600 text-rose-600 hover:bg-rose-50 dark:border-rose-400 dark:text-rose-400 dark:hover:bg-rose-900/30 focus:ring-rose-500' },
+    ghost:     { solid: 'bg-transparent text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 focus:ring-slate-500', outline: 'border border-slate-300 text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-800 focus:ring-slate-500' },
+    link:      { solid: 'bg-transparent text-indigo-600 hover:underline dark:text-indigo-400 focus:ring-indigo-500', outline: 'bg-transparent text-indigo-600 hover:underline dark:text-indigo-400 focus:ring-indigo-500' }
   };
 
-  // Outline variant colors
-  const outlineColors = {
-    primary:   'border border-blue-600 text-blue-600 hover:bg-blue-50 focus:ring-blue-500',
-    secondary: 'border border-gray-600 text-gray-600 hover:bg-gray-50 focus:ring-gray-500',
-    accent:    'border border-purple-600 text-purple-600 hover:bg-purple-50 focus:ring-purple-500',
-    info:      'border border-blue-400 text-blue-400 hover:bg-blue-50 focus:ring-blue-400',
-    success:   'border border-green-600 text-green-600 hover:bg-green-50 focus:ring-green-500',
-    warning:   'border border-yellow-500 text-yellow-600 hover:bg-yellow-50 focus:ring-yellow-400',
-    error:     'border border-red-600 text-red-600 hover:bg-red-50 focus:ring-red-500',
-    ghost:     'border border-gray-300 text-gray-600 hover:bg-gray-50 focus:ring-gray-300',
-    link:      'text-blue-600 hover:underline focus:ring-blue-300'
+  // =========================================================================
+  // 2. PUSAT KONTROL UKURAN
+  // =========================================================================
+  const sizes = {
+    xs: 'px-2.5 py-1.5 text-xs font-medium rounded',
+    sm: 'px-3 py-2 text-sm font-medium rounded-md',
+    md: 'px-4 py-2.5 text-sm font-semibold rounded-lg',
+    lg: 'px-5 py-3 text-base font-semibold rounded-lg',
+    xl: 'px-6 py-3.5 text-lg font-semibold rounded-xl',
   };
 
-  // Size classes
-  const sizeClasses = {
-    xs: 'px-2 py-1 text-xs rounded',
-    sm: 'px-3 py-1.5 text-sm rounded',
-    md: 'px-4 py-2 text-sm rounded-md',
-    lg: 'px-5 py-2.5 text-base rounded-md',
+  // =========================================================================
+  // 3. PUSAT KONTROL POSISI INTERNAL
+  // =========================================================================
+  const alignments = {
+    start: 'justify-start',
+    center: 'justify-center',
+    end: 'justify-end',
+    between: 'justify-between'
   };
 
-  // Base classes
-  let classes = \`inline-flex items-center justify-center font-medium transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed \${sizeClasses[size] || sizeClasses.md}\`;
-
-  // Apply variant colors
-  if (variant === 'link' && !outline) {
-    classes += \` \${solidColors.link}\`;
-  } else if (variant === 'link' && outline) {
-    classes += \` \${outlineColors.link}\`;
-  } else if (outline) {
-    classes += \` \${outlineColors[variant] || outlineColors.primary}\`;
-  } else {
-    classes += \` \${solidColors[variant] || solidColors.primary}\`;
-  }
-
-  // Block (full width)
-  if (block) classes += ' w-full';
-
-  // Custom className
-  if (className) classes += \` \${className}\`;
+  // =========================================================================
+  // 4. LOGIKA PENGGABUNGAN CLASS (DITAMBAHKAN INDIKATOR KLIK PREMIUM)
+  // =========================================================================
+  const variantType = outline ? 'outline' : 'solid';
+  
+  // PERHATIKAN 2 TAMBAHAN INI:
+  // 1. 'cursor-pointer' : Memaksa ikon tangan muncul saat hover (standar wajib)
+  // 2. 'active:scale-95': Efek "tekan" (mengecil 5%) saat diklik, memberi sensasi taktil premium
+  const baseClasses = 'inline-flex items-center cursor-pointer transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-slate-900 disabled:opacity-60 disabled:cursor-not-allowed active:scale-95';
+  
+  const colorClass = colors[variant]?.[variantType] || colors.primary.solid;
+  const sizeClass = sizes[size] || sizes.md;
+  const alignClass = alignments[align] || alignments.center;
+  const blockClass = block ? 'w-full' : '';
+  
+  // Menggabungkan semua class dan membuang nilai kosong/null
+  const finalClassName = [baseClasses, colorClass, sizeClass, alignClass, blockClass, className].filter(Boolean).join(' ');
 
   return (
     <button
       type={type}
-      className={classes}
+      className={finalClassName}
       disabled={disabled || loading}
       {...props}
     >

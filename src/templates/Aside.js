@@ -1,81 +1,132 @@
 // src/templates/Aside.js
 
 module.exports = (componentName) => {
-  return `import React from 'react';
+  return `import React, { useState } from 'react';
 
 /**
  * ${componentName} Component
- * Pure Tailwind CSS
+ * Standar Industri: Stateful dropdown, Route matching cerdas, Dark Mode, dan Aksesibilitas penuh.
  */
 const ${componentName} = ({
-  logo,                  // Logo element
-  menuItems = [],        // Array of { icon, label, href, children: [{label, href}] }
-  activePath = '',       // Current active URL path for highlighting
-  header,                // Custom header element (e.g., user profile summary)
-  footer,                // Custom footer element inside sidebar
+  logo,                  // React Node: Logo atau nama brand
+  menuItems = [],        // Array: { icon, label, href, children?: [{label, href}] }
+  activePath = '',       // String: URL path saat ini (misal: window.location.pathname)
+  header,                // React Node: Konten atas (misal: profil user)
+  footer,                // React Node: Konten bawah (misal: tombol logout)
   className = '',
   ...props
 }) => {
-  // Helper to check if a link is active
-  const isActive = (href) => activePath === href
-    ? 'bg-blue-600 text-white hover:bg-blue-700'
-    : 'text-gray-700 hover:bg-gray-100';
+  // State untuk mengontrol dropdown menu
+  const [openMenus, setOpenMenus] = useState({});
 
-  // Base style for links and summary buttons
-  const linkBase = 'flex items-center gap-3 px-3 py-2 rounded-md transition-colors';
+  const toggleMenu = (label) => {
+    setOpenMenus(prev => ({ ...prev, [label]: !prev[label] }));
+  };
+
+  // Helper: Cek apakah link aktif (mendukung exact match atau prefix untuk nested routes)
+  const isActive = (href) => {
+    if (!activePath) return false;
+    return activePath === href || (href !== '/' && activePath.startsWith(href + '/'));
+  };
+
+  // =========================================================================
+  // PUSAT KONTROL CLASS
+  // =========================================================================
+  const asideClasses = \`w-64 bg-white dark:bg-slate-900 h-full flex flex-col border-r border-slate-200 dark:border-slate-800 transition-all duration-300 \${className}\`;
+  
+  const linkBase = "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200";
+  const linkInactive = "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100";
+  const linkActive = "bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-300";
+  
+  const dropdownBtnBase = \`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 \`;
+  const dropdownBtnInactive = "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100";
+  const dropdownBtnActive = "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100";
 
   return (
-    <aside className={\`w-64 bg-white h-screen flex flex-col border-r border-gray-200 \${className}\`} {...props}>
-      {/* Sidebar Header / Logo */}
-      <div className="p-4 border-b border-gray-200">
-        <a href="/" className="flex items-center gap-2 text-xl font-bold text-gray-800">
-          {logo || 'Sidebar'}
+    <aside className={asideClasses} {...props}>
+      {/* 1. Header / Logo Area */}
+      <div className="p-5 border-b border-slate-200 dark:border-slate-800">
+        <a href="/" className="flex items-center gap-2.5 text-xl font-bold text-slate-900 dark:text-white hover:opacity-80 transition-opacity">
+          {logo || 'MyBrand'}
         </a>
       </div>
 
-      {/* Custom Header (e.g. User Profile) */}
-      {header && <div className="p-4 border-b border-gray-200">{header}</div>}
+      {/* 2. Custom Header (Opsional) */}
+      {header && <div className="p-4 border-b border-slate-200 dark:border-slate-800">{header}</div>}
 
-      {/* Menu Items (Pure Tailwind CSS) */}
-      <ul className="flex-1 overflow-y-auto p-4 space-y-1 list-none">
+      {/* 3. Menu Items */}
+      <nav className="flex-1 overflow-y-auto p-4 space-y-1 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-700">
         {menuItems.map((item, idx) => {
-          // If item has children, render as collapsible dropdown
-          if (item.children && item.children.length > 0) {
+          const hasChildren = item.children && item.children.length > 0;
+          const isItemActive = item.href ? isActive(item.href) : false;
+          const isOpen = openMenus[item.label];
+
+          if (hasChildren) {
+            // Cek apakah ada child yang aktif untuk membuka dropdown secara otomatis
+            const hasActiveChild = item.children.some(child => isActive(child.href));
+            
             return (
-              <li key={idx}>
-                <details open={item.children.some(child => activePath === child.href)}>
-                  <summary className={\`\${linkBase} cursor-pointer list-none\`}>
+              <div key={idx} className="space-y-1">
+                <button
+                  type="button"
+                  onClick={() => toggleMenu(item.label)}
+                  className={\`\${dropdownBtnBase} \${isItemActive || hasActiveChild ? dropdownBtnActive : dropdownBtnInactive}\`}
+                  aria-expanded={isOpen || hasActiveChild}
+                >
+                  <span className="flex items-center gap-3">
                     {item.icon}
                     <span>{item.label}</span>
-                  </summary>
-                  <ul className="mt-1 ml-4 space-y-1 list-none">
-                    {item.children.map((child, cIdx) => (
-                      <li key={cIdx}>
-                        <a href={child.href} className={\`\${linkBase} \${isActive(child.href)}\`}>
-                          {child.icon} <span>{child.label}</span>
-                        </a>
-                      </li>
-                    ))}
+                  </span>
+                  {/* Chevron Icon */}
+                  <svg 
+                    className={\`w-4 h-4 transition-transform duration-200 \${(isOpen || hasActiveChild) ? 'rotate-180' : ''}\`} 
+                    fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+
+                {/* Child Links */}
+                {(isOpen || hasActiveChild) && (
+                  <ul className="ml-4 pl-4 border-l border-slate-200 dark:border-slate-700 space-y-1 mt-1">
+                    {item.children.map((child, cIdx) => {
+                      const isChildActive = isActive(child.href);
+                      return (
+                        <li key={cIdx}>
+                          <a
+                            href={child.href}
+                            className={\`\${linkBase} \${isChildActive ? linkActive : linkInactive}\`}
+                            aria-current={isChildActive ? 'page' : undefined}
+                          >
+                            {child.icon && <span className="w-4 h-4 flex items-center justify-center">{child.icon}</span>}
+                            <span>{child.label}</span>
+                          </a>
+                        </li>
+                      );
+                    })}
                   </ul>
-                </details>
-              </li>
+                )}
+              </div>
             );
           }
-          
-          // Else, render as standard link
+
+          // Standard Link
           return (
-            <li key={idx}>
-              <a href={item.href} className={\`\${linkBase} \${isActive(item.href)}\`}>
-                {item.icon}
-                <span>{item.label}</span>
-              </a>
-            </li>
+            <a
+              key={idx}
+              href={item.href}
+              className={\`\${linkBase} \${isItemActive ? linkActive : linkInactive}\`}
+              aria-current={isItemActive ? 'page' : undefined}
+            >
+              {item.icon}
+              <span>{item.label}</span>
+            </a>
           );
         })}
-      </ul>
+      </nav>
 
-      {/* Sidebar Footer */}
-      {footer && <div className="p-4 border-t border-gray-200">{footer}</div>}
+      {/* 4. Custom Footer (Opsional) */}
+      {footer && <div className="p-4 border-t border-slate-200 dark:border-slate-800">{footer}</div>}
     </aside>
   );
 };

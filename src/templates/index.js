@@ -3,6 +3,8 @@
 // ==========================================
 // 1. UI Components
 // ==========================================
+const HeroTemplate = require('./Hero');
+const CarouselTemplate = require('./Carousel'); 
 const AlertTemplate = require('./Alert');
 const AvatarTemplate = require('./Avatar');
 const BadgeTemplate = require('./Badge');
@@ -12,6 +14,7 @@ const DropdownTemplate = require('./Dropdown');
 const ModalTemplate = require('./Modal');
 const ToastTemplate = require('./Toast');
 const SwitchTemplate = require('./Switch');
+const BreadCrumbTemplate = require('./BreadCrumb');
 
 // ==========================================
 // 2. Layout Components
@@ -45,11 +48,14 @@ const PaginationTemplate = require('./Pagination');
 const SearchTemplate = require('./Search');
 const TableTemplate = require('./Table');
 const ProgressBarTemplate = require('./ProgressBar');
+const SEOTemplate = require('./SEO');
 // ==========================================
 // Mapping Router
 // ==========================================
 const specificTemplates = {
   // UI
+  Hero: HeroTemplate,
+  Carousel: CarouselTemplate,
   Alert: AlertTemplate,
   Avatar: AvatarTemplate,
   Badge: BadgeTemplate,
@@ -59,6 +65,7 @@ const specificTemplates = {
   Modal: ModalTemplate,
   Toast: ToastTemplate,
   Switch: SwitchTemplate,
+  BreadCrumb: BreadCrumbTemplate,
 
   // Layout
   Aside: AsideTemplate,
@@ -84,7 +91,7 @@ const specificTemplates = {
   Search: SearchTemplate,
   Table: TableTemplate,
   ProgressBar: ProgressBarTemplate,
-  
+  SEO: SEOTemplate
 };
 
 // ==========================================

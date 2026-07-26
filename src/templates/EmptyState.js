@@ -5,58 +5,59 @@ module.exports = (componentName) => {
 
 /**
  * ${componentName} Component
- * Pure Tailwind CSS - No external UI library dependencies
+ * Standar Industri: Modern, Dark Mode ready, dengan wrapper ikon yang elegan.
  */
 const ${componentName} = ({
-  icon,
-  title = 'No Data Available',
-  description = 'There is no data to display at the moment.',
-  action,
+  icon,                  // React Node: Ikon kustom (opsional)
+  title = 'Tidak Ada Data',
+  description = 'Belum ada data yang tersedia untuk ditampilkan saat ini.',
+  action,                // React Node: Biasanya sebuah <Button> untuk memicu aksi
   className = '',
   ...props
 }) => {
-  return (
-    <div 
-      className={\`flex flex-col items-center justify-center p-8 text-center bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 \${className}\`}
-      {...props}
-    >
-      {/* Icon */}
-      {icon && (
-        <div className="mb-4 text-gray-400">
-          {icon}
-        </div>
-      )}
-      
-      {/* Default Icon if none provided */}
-      {!icon && (
-        <svg 
-          className="w-16 h-16 mb-4 text-gray-400" 
-          fill="none" 
-          stroke="currentColor" 
-          viewBox="0 0 24 24"
-        >
-          <path 
-            strokeLinecap="round" 
-            strokeLinejoin="round" 
-            strokeWidth={1.5} 
-            d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" 
-          />
-        </svg>
-      )}
+  // =========================================================================
+  // LOGIKA PENGGABUNGAN CLASS
+  // =========================================================================
+  const containerClasses = [
+    'flex flex-col items-center justify-center p-8 text-center rounded-2xl border-2 border-dashed transition-colors duration-200',
+    'bg-slate-50 border-slate-200 dark:bg-slate-900/50 dark:border-slate-800',
+    className
+  ].filter(Boolean).join(' ');
 
-      {/* Title */}
-      <h3 className="text-lg font-semibold text-gray-900 mb-2">
+  const iconWrapperClasses = 'w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-4 text-slate-400 dark:text-slate-500';
+  const titleClasses = 'text-lg font-semibold text-slate-900 dark:text-white mb-2';
+  const descClasses = 'text-sm text-slate-500 dark:text-slate-400 mb-6 max-w-sm mx-auto leading-relaxed';
+  const actionClasses = 'mt-2';
+
+  return (
+    <div className={containerClasses} {...props}>
+      {/* Ikon dengan Wrapper Premium */}
+      <div className={iconWrapperClasses}>
+        {icon ? (
+          React.cloneElement(icon, { 
+            className: \`w-8 h-8 \${icon.props.className || ''}\` 
+          })
+        ) : (
+          // Default Icon: Folder / Inbox Kosong
+          <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+          </svg>
+        )}
+      </div>
+
+      {/* Judul */}
+      <h3 className={titleClasses}>
         {title}
       </h3>
 
-      {/* Description */}
-      <p className="text-sm text-gray-500 mb-6 max-w-sm">
+      {/* Deskripsi */}
+      <p className={descClasses}>
         {description}
       </p>
 
-      {/* Action Button */}
+      {/* Tombol Aksi (Opsional) */}
       {action && (
-        <div>
+        <div className={actionClasses}>
           {action}
         </div>
       )}

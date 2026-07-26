@@ -17,10 +17,15 @@ component-generator
 │   │   ├── Modal.js
 │   │   ├── Navbar.js
 │   │   ├── Pagination.js
+│   │   ├── ProgressBar.js
+│   │   ├── Radiobutton.js
 │   │   ├── Search.js
 │   │   ├── Select.js
+│   │   ├── SEO.js
 │   │   ├── Skeleton.js
+│   │   ├── Slider.js
 │   │   ├── Spinner.js
+│   │   ├── Switch.js
 │   │   ├── Table.js
 │   │   ├── Textarea.js
 │   │   └── Toast.js

@@ -7,77 +7,116 @@ import React, { useState } from 'react';
 
 /**
  * ${componentName} Component
- * Pure Tailwind CSS
+ * Standar Industri: Responsif, Dark Mode ready, dan efek Glassmorphism opsional.
  */
 const ${componentName} = ({
-  logo,                  // Logo element (img or text)
-  links = [],            // Array of { label: 'Home', href: '/' }
-  actions,               // Right side elements (buttons, profile dropdown)
-  sticky = false,        // Stick to top on scroll
+  logo,                   // React Node: Bisa berupa <img> atau teks <span>Brand</span>
+  links = [],             // Array: [{ label: 'Beranda', href: '/' }]
+  actions,                // React Node: Tombol Login, Register, atau Avatar User di kanan
+  variant = 'glass',      // Tampilan: 'solid' (polos), 'glass' (blur transparan), 'transparent'
+  sticky = true,          // Boolean: Tetap di atas saat di-scroll
   className = '',
   ...props
 }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const navClasses = \`bg-white shadow-md flex items-center justify-between p-4 \${sticky ? 'sticky top-0 z-50' : ''} \${className}\`;
+  // =========================================================================
+  // 1. PUSAT KONTROL TAMPILAN NAVBAR
+  // =========================================================================
+  const variants = {
+    solid: 'bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800',
+    glass: 'bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200/50 dark:border-slate-800/50',
+    transparent: 'bg-transparent border-b border-white/10'
+  };
+
+  const baseClasses = \`w-full z-50 transition-all duration-300 \${sticky ? 'sticky top-0' : 'relative'} \${variants[variant] || variants.glass} \${className}\`;
 
   return (
-    <nav className={navClasses} {...props}>
-      {/* Left: Hamburger & Logo */}
-      <div className="flex items-center gap-4">
-        {/* Hamburger - visible only on mobile */}
-        <button
-          className="lg:hidden p-2 rounded-md text-gray-600 hover:bg-gray-100 focus:outline-none"
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          aria-label="Toggle menu"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h8m-8 6h16" />
-          </svg>
-        </button>
+    <nav className={baseClasses} {...props}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          
+          {/* A. KIRI: Hamburger (Mobile) & Logo */}
+          <div className="flex items-center gap-4">
+            {/* Tombol Hamburger Mobile */}
+            <button
+              type="button"
+              className="lg:hidden p-2 rounded-md text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              aria-expanded={isMobileMenuOpen}
+              aria-label="Toggle navigation menu"
+            >
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
 
-        {/* Logo */}
-        <a href="/" className="text-xl font-bold text-gray-800 hover:text-blue-600 transition-colors">
-          {logo || 'Brand'}
-        </a>
-      </div>
-
-      {/* Center: Desktop Links - hidden on mobile */}
-      <ul className="hidden lg:flex items-center gap-6 list-none">
-        {links.map((link, idx) => (
-          <li key={idx}>
-            <a href={link.href} className="font-medium text-gray-700 hover:text-blue-600 transition-colors">
-              {link.label}
+            {/* Logo */}
+            <a href="/" className="flex items-center gap-2 text-xl font-bold text-slate-900 dark:text-white hover:opacity-80 transition-opacity">
+              {logo || <span>MyBrand</span>}
             </a>
-          </li>
-        ))}
-      </ul>
+          </div>
 
-      {/* Right: Actions */}
-      <div className="flex items-center gap-3">
-        {actions || (
-          <a href="#" className="inline-flex items-center px-4 py-2 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 transition-colors">
-            Get Started
-          </a>
-        )}
+          {/* B. TENGAH: Desktop Links (Tersembunyi di Mobile) */}
+          <div className="hidden lg:flex items-center gap-1">
+            {links.map((link, idx) => (
+              <a
+                key={idx}
+                href={link.href}
+                className="px-3 py-2 rounded-md text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+              >
+                {link.label}
+              </a>
+            ))}
+          </div>
+
+          {/* C. KANAN: Actions (Desktop) */}
+          <div className="hidden lg:flex items-center gap-3">
+            {actions || (
+              // Fallback default jika prop 'actions' tidak diisi
+              <>
+                <a href="/login" className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white">Masuk</a>
+                <a href="/register" className="inline-flex items-center px-4 py-2 text-sm font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors">
+                  Daftar
+                </a>
+              </>
+            )}
+          </div>
+        </div>
       </div>
 
-      {/* Mobile Menu Dropdown */}
+      {/* D. MOBILE MENU DROPDOWN (Muncul saat isMobileMenuOpen = true) */}
       {isMobileMenuOpen && (
-        <div className="absolute top-full left-0 right-0 bg-white shadow-lg border-t border-gray-200 lg:hidden z-40">
-          <ul className="flex flex-col p-4 gap-2">
+        <div className="lg:hidden absolute top-16 left-0 w-full bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-xl animate-in slide-in-from-top-2 duration-200">
+          <div className="px-4 py-4 space-y-3">
+            {/* Mobile Links */}
             {links.map((link, idx) => (
-              <li key={idx}>
-                <a
-                  href={link.href}
-                  className="block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100 transition-colors"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  {link.label}
-                </a>
-              </li>
+              <a
+                key={idx}
+                href={link.href}
+                className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-indigo-400"
+                onClick={() => setIsMobileMenuOpen(false)} // Tutup menu saat link diklik
+              >
+                {link.label}
+              </a>
             ))}
-          </ul>
+            
+            {/* Mobile Actions (Opsional: Tampilkan juga di mobile jika perlu) */}
+            <div className="pt-4 border-t border-slate-200 dark:border-slate-800 flex flex-col gap-3">
+              {actions ? (
+                <div className="flex flex-col gap-3">{actions}</div>
+              ) : (
+                <>
+                  <a href="/login" className="text-center w-full px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800">
+                    Masuk
+                  </a>
+                  <a href="/register" className="text-center w-full px-4 py-2 text-sm font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700">
+                    Daftar Sekarang
+                  </a>
+                </>
+              )}
+            </div>
+          </div>
         </div>
       )}
     </nav>
